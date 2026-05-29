@@ -892,6 +892,88 @@ def inject_app_styles():
         box-shadow: 0 12px 24px rgba(15, 98, 254, 0.24) !important;
     }
 
+
+
+    /* Left sidebar navigation - matches the earlier cleaner app layout */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f7fcff 100%) !important;
+        border-right: 1px solid #e2e8f0 !important;
+    }
+
+    section[data-testid="stSidebar"] > div {
+        padding-top: 1.6rem !important;
+    }
+
+    .rb-side-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.78rem;
+        margin: 0.35rem 0 2.2rem 0;
+    }
+
+    .rb-side-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.28rem;
+        font-weight: 950;
+        background: linear-gradient(135deg, #0f62fe 0%, #14b8a6 100%);
+        box-shadow: 0 14px 28px rgba(15, 98, 254, 0.20);
+    }
+
+    .rb-side-title {
+        color: #0f172a;
+        font-size: 1.16rem;
+        font-weight: 950;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+    }
+
+    .rb-side-label {
+        margin: 0 0 0.8rem 0;
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    section[data-testid="stSidebar"] div.stButton > button {
+        min-height: 47px !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        border-radius: 15px !important;
+        border: 1px solid transparent !important;
+        background: transparent !important;
+        color: #0f172a !important;
+        font-weight: 850 !important;
+        box-shadow: none !important;
+        margin-bottom: 0.38rem !important;
+        padding-left: 0.95rem !important;
+    }
+
+    section[data-testid="stSidebar"] div.stButton > button:hover {
+        background: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #0f62fe !important;
+        transform: translateX(2px) !important;
+        box-shadow: 0 8px 18px rgba(15, 98, 254, 0.08) !important;
+    }
+
+    section[data-testid="stSidebar"] div.stButton > button:disabled,
+    section[data-testid="stSidebar"] div.stButton > button[disabled] {
+        opacity: 1 !important;
+        cursor: default !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+        background: linear-gradient(135deg, #0f62fe 0%, #1956e8 100%) !important;
+        box-shadow: 0 12px 24px rgba(15, 98, 254, 0.24) !important;
+    }
+
     /* Sleek segmented radio controls for Login/Create Account, Budget mode, Income mode, etc. */
     div[data-testid="stRadio"] [role="radiogroup"] {
         display: inline-flex !important;
@@ -4916,26 +4998,37 @@ def go_to_page(page_name: str):
     st.rerun()
 
 def render_navigation():
-    st.markdown('<div class="rb-nav-intro">Plan sections</div>', unsafe_allow_html=True)
-    st.markdown('<div class="rb-nav-wrap">', unsafe_allow_html=True)
-    nav_rows = [PAGE_NAMES[i:i+5] for i in range(0, len(PAGE_NAMES), 5)]
-    for row_index, row_pages in enumerate(nav_rows):
-        cols = st.columns(len(row_pages), gap="small")
-        for col, page_name in zip(cols, row_pages):
-            with col:
-                is_active = st.session_state.active_page == page_name
-                icon = PAGE_ICONS.get(page_name, "")
-                display_name = NAV_LABELS.get(page_name, page_name)
-                label = f"{icon} {display_name}"
-                if st.button(
-                    label,
-                    key=f"nav_btn_{row_index}_{page_name}",
-                    use_container_width=True,
-                    disabled=is_active,
-                    help=f"Go to {page_name}",
-                ):
-                    go_to_page(page_name)
-    st.markdown('</div>', unsafe_allow_html=True)
+    """Left-side navigation for Retirement Blueprint 101.
+    Keeps the main page clean and returns the menu to the older app feel.
+    """
+    with st.sidebar:
+        st.markdown(
+            """
+            <div class="rb-side-brand">
+                <div class="rb-side-logo">↗</div>
+                <div>
+                    <div class="rb-side-title">Retirement</div>
+                    <div class="rb-side-title">Blueprint 101</div>
+                </div>
+            </div>
+            <div class="rb-side-label">Plan sections</div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        for page_name in PAGE_NAMES:
+            is_active = st.session_state.active_page == page_name
+            icon = PAGE_ICONS.get(page_name, "")
+            display_name = NAV_LABELS.get(page_name, page_name)
+            label = f"{icon} {display_name}"
+            if st.button(
+                label,
+                key=f"side_nav_btn_{page_name}",
+                use_container_width=True,
+                disabled=is_active,
+                help=f"Go to {display_name}",
+            ):
+                go_to_page(page_name)
 
 render_navigation()
 active_page = st.session_state.active_page
