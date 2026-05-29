@@ -1222,25 +1222,55 @@ def render_onboarding_welcome():
             </div>
           </div>
         </div>
+        <!-- Spacer so the Streamlit button injected below floats up into this space -->
+        <div style="height: 60px;"></div>
         <p class="rb-onboard-note">
             Free to use &nbsp;·&nbsp; No account needed to start &nbsp;·&nbsp;
             Educational tool only — not financial advice
         </p>
       </div>
     </div>
+
+    <style>
+    /* Pull the very next Streamlit button block up into the modal card */
+    .rb-onboard-overlay + div .stButton,
+    .rb-onboard-overlay + div + div .stButton {
+        position: fixed !important;
+        bottom: calc(50% - 340px) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: min(532px, calc(100vw - 88px)) !important;
+        z-index: 10000 !important;
+    }
+    .rb-onboard-overlay + div .stButton > button,
+    .rb-onboard-overlay + div + div .stButton > button {
+        width: 100% !important;
+        min-height: 52px !important;
+        border-radius: 14px !important;
+        font-size: 1rem !important;
+        font-weight: 800 !important;
+        background: linear-gradient(135deg, #0f62fe, #0891b2) !important;
+        border: none !important;
+        box-shadow: 0 10px 28px rgba(15,98,254,0.32) !important;
+        color: white !important;
+    }
+    .rb-onboard-overlay + div .stButton > button:hover,
+    .rb-onboard-overlay + div + div .stButton > button:hover {
+        box-shadow: 0 14px 36px rgba(15,98,254,0.42) !important;
+        transform: translateY(-1px) !important;
+    }
+    </style>
     """, unsafe_allow_html=True)
 
-    # Streamlit button renders below the overlay — clicking it dismisses everything
-    col_l, col_btn, col_r = st.columns([1, 2, 1])
-    with col_btn:
-        if st.button(
-            "Got it — let's get started →",
-            type="primary",
-            use_container_width=True,
-            key="onboarding_dismiss_btn",
-        ):
-            st.session_state.onboarding_done = True
-            st.rerun()
+    # This button is visually pulled up inside the modal via CSS above
+    if st.button(
+        "Got it — let's get started →",
+        type="primary",
+        use_container_width=True,
+        key="onboarding_dismiss_btn",
+    ):
+        st.session_state.onboarding_done = True
+        st.rerun()
 
     st.stop()  # Nothing else renders until the user clicks through
 
