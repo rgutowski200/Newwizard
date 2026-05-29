@@ -1617,38 +1617,38 @@ def tax_assumption_note():
 # User Help / Tooltips
 # -----------------------------
 FIELD_HELP = {
-    "current_age": "Enter your current age today. This is the starting age for the retirement projection.",
-    "retire_age": "Enter the age you want to stop working or begin relying on retirement income.",
-    "end_age": "Enter the age the plan should last through. Many people use 90, 95, or 100 for conservative planning.",
-    "traditional": "Total balance in pre-tax accounts such as traditional 401(k), traditional IRA, 403(b), or rollover IRA.",
-    "roth": "Total balance in Roth accounts such as Roth IRA or Roth 401(k). These are generally tax-free in retirement if rules are met.",
-    "taxable": "Total balance in regular brokerage or investment accounts outside retirement accounts.",
-    "cash": "Cash, CDs, money market, short-term bonds, or other safer assets used as Bucket 1.",
-    "annual_contribution": "How much you expect to add to retirement accounts each year until retirement.",
-    "healthcare": "Estimated annual healthcare cost after retirement before Medicare or in addition to Medicare.",
-    "user_ss_age": "Age when you expect to start Social Security. Earlier usually means lower benefits; later usually means higher benefits.",
-    "user_ss": "Estimated annual Social Security benefit in today’s dollars.",
-    "growth_return": "Expected annual return for growth assets. This is only an assumption, not a guarantee.",
-    "safe_return": "Expected annual return for Bucket 1 or safer assets.",
-    "inflation": "Expected annual inflation rate used to increase future spending.",
-    "annual_conversion": "Annual amount to test moving from traditional retirement accounts into Roth accounts.",
-    "bucket1_years": "How many years of spending you want protected in safer assets.",
-    "tax_year": "Choose the tax year used for the federal tax bracket estimate. Update the tax table annually as IRS brackets change.",
-    "filing_status": "Choose the federal filing status used to estimate ordinary income taxes in the projection.",
-    "flat_monthly_spending": "Your estimated monthly lifestyle spending before healthcare. Do not include retirement contributions.",
-    "survivor_spending": "Optional annual spending estimate after one spouse passes away.",
-    "simple_income": "Other annual income besides Social Security, such as pension, rent, consulting, or part-time work.",
-    "simple_income_start": "Age when this other income begins.",
-    "simple_income_end": "Age when this income ends. Use 0 if it continues for life.",
-    "simple_income_inflation": "Check this if the income is expected to rise with inflation.",
-    "simple_income_reliability": "Guaranteed means reliable income like pension. Variable means uncertain income like side work.",
-    "spouse_age": "Your spouse or partner’s current age.",
-    "spouse_retire_age": "Age your spouse or partner expects to retire.",
-    "spouse_plan_age": "Age your spouse’s part of the plan should last through.",
-    "spouse_annual_contribution": "Spouse or partner’s expected annual retirement contributions before retirement.",
-    "spouse_healthcare": "Estimated spouse or partner annual healthcare cost in retirement.",
-    "spouse_ss_age": "Age when spouse or partner expects to start Social Security.",
-    "spouse_ss": "Estimated annual spouse or partner Social Security benefit.",
+    "current_age": "How old are you right now? This is where your plan starts.",
+    "retire_age": "What age would you like to stop working? This is the age we use to start drawing down your savings.",
+    "end_age": "How long do you want the plan to last? Most people pick 90, 95, or 100 — it's better to plan for more years than fewer.",
+    "traditional": "Money you saved in a regular 401(k) or IRA. You haven't paid taxes on this yet — you'll pay when you take it out in retirement.",
+    "roth": "Money in a Roth IRA or Roth 401(k). You already paid taxes on this, so it's generally tax-free when you take it out in retirement.",
+    "taxable": "Money in a regular investment or brokerage account — not inside a 401(k) or IRA. Just a normal investment account.",
+    "cash": "Money in the bank, CDs, or very safe short-term investments. This is your 'spend it soon' money — your safety cushion for the first few years of retirement.",
+    "annual_contribution": "How much money do you add to your retirement accounts each year before you retire? Include any employer match if you want.",
+    "healthcare": "How much do you expect to pay each year for health insurance and medical costs in retirement? Before age 65, this is often the biggest surprise expense.",
+    "user_ss_age": "What age do you plan to start collecting Social Security? Starting at 62 gives you less per month. Waiting until 70 gives you the most. Age 67 is in the middle.",
+    "user_ss": "How much do you expect to get from Social Security each year? You can look this up at ssa.gov. Enter your best estimate in today's dollars.",
+    "growth_return": "How much do you expect your investments to grow each year on average? Nobody knows for sure — this is just your planning estimate. Careful = 4.5%, Balanced = 6.5%, Growth = 8%.",
+    "safe_return": "How much do you expect your safer, near-term money to earn? Things like CDs, money market, or short-term bonds. Usually much lower than growth investments.",
+    "inflation": "How much do you expect prices to go up each year? Historically around 2-3%. Higher inflation means your spending costs more over time.",
+    "annual_conversion": "Each year, you can move money from a regular 401(k)/IRA into a Roth account. You pay taxes now, but the money grows tax-free after. Enter an amount to test what this does to your plan.",
+    "bucket1_years": "How many years of spending do you want kept in your safest, most accessible money? Most people use 2-3 years. This protects you if the market drops right when you retire.",
+    "tax_year": "Which year's tax rules should we use to estimate your taxes? Usually the current year is fine.",
+    "filing_status": "Are you filing taxes as a single person, or jointly with a spouse? This changes your tax brackets.",
+    "flat_monthly_spending": "About how much do you spend each month on everything — groceries, housing, car, fun, etc.? Don't include retirement savings contributions. Your best estimate is fine.",
+    "survivor_spending": "If you have a spouse, what would the surviving person spend per year after the other passes away? Usually a bit lower than spending as a couple.",
+    "simple_income": "Do you have any income besides Social Security? Pension, rental income, part-time work, consulting, an annuity — enter the annual amount here.",
+    "simple_income_start": "What age does this extra income start?",
+    "simple_income_end": "What age does this income stop? Leave as 0 if it lasts your whole life.",
+    "simple_income_inflation": "Check this box if you expect this income to go up with inflation over time.",
+    "simple_income_reliability": "Is this income guaranteed (like a pension) or uncertain (like part-time work that might end)?",
+    "spouse_age": "How old is your spouse or partner right now?",
+    "spouse_retire_age": "What age does your spouse or partner plan to stop working?",
+    "spouse_plan_age": "How long should your spouse's part of the plan last? Usually the same as your end age.",
+    "spouse_annual_contribution": "How much does your spouse add to retirement accounts each year before they retire?",
+    "spouse_healthcare": "How much do you estimate your spouse will pay for health insurance and medical costs in retirement each year?",
+    "spouse_ss_age": "What age does your spouse plan to start collecting Social Security?",
+    "spouse_ss": "How much does your spouse expect from Social Security each year? Check ssa.gov for an estimate.",
 }
 
 def page_help(title, body):
@@ -5136,234 +5136,407 @@ except Exception as _projection_error:
 
 
 def render_landing_page():
-    """Clean, plain-English landing page for Retirement Blueprint 101.
-    Uses mostly native Streamlit components so HTML never prints as text.
-    """
-    st.markdown(
-        """
-        <style>
-        .block-container { padding-top: 2.2rem; }
-        .rb-hero-shell {
-            padding: 28px 30px;
-            border-radius: 28px;
-            border: 1px solid #DCEBFF;
-            background: radial-gradient(circle at 85% 10%, rgba(20,184,166,.18), transparent 30%),
-                        linear-gradient(135deg, #FFFFFF 0%, #F3FAFF 65%, #ECFDF5 100%);
-            box-shadow: 0 20px 55px rgba(15, 23, 42, .08);
-            margin-bottom: 20px;
-        }
-        .rb-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #EAF3FF;
-            color: #1D4ED8;
-            border-radius: 999px;
-            padding: 8px 13px;
-            font-size: .82rem;
-            font-weight: 900;
-            margin-bottom: 14px;
-        }
-        .rb-title {
-            color: #071936;
-            font-size: clamp(2.35rem, 5vw, 4.3rem);
-            line-height: 1.02;
-            letter-spacing: -.055em;
-            font-weight: 950;
-            margin: 0 0 18px 0;
-        }
-        .rb-copy {
-            color: #475569;
-            font-size: 1.12rem;
-            line-height: 1.55;
-            margin: 0 0 14px 0;
-        }
-        .rb-copy strong { color:#0F172A; }
-        .rb-small-note {
-            color: #718096;
-            font-size: .82rem;
-            margin-top: 10px;
-        }
-        .rb-section-card {
-            border: 1px solid #DDEBFA;
-            border-radius: 22px;
-            background: #FFFFFF;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, .045);
-            padding: 20px;
-            height: 100%;
-        }
-        .rb-card-title {
-            color:#071936;
-            font-size:1.05rem;
-            font-weight:950;
-            margin-bottom:7px;
-        }
-        .rb-card-copy {
-            color:#64748B;
-            line-height:1.45;
-            margin:0;
-            font-size:.95rem;
-        }
-        .rb-worry {
-            border: 1px solid #DDEBFA;
-            border-radius: 24px;
-            background: #FFFFFF;
-            box-shadow: 0 14px 38px rgba(15, 23, 42, .055);
-            padding: 24px 28px;
-            margin: 22px 0 18px 0;
-        }
-        .rb-worry-title {
-            color:#071936;
-            font-size:1.45rem;
-            line-height:1.22;
-            font-weight:950;
-            margin-bottom:7px;
-        }
-        .rb-worry-copy {
-            color:#64748B;
-            font-size:1rem;
-            line-height:1.45;
-        }
-        .rb-sample-title {
-            color:#071936;
-            font-size:1.18rem;
-            font-weight:950;
-            margin-bottom:2px;
-        }
-        .rb-example-pill {
-            display:inline-block;
-            color:#047857;
-            background:#DFFBF2;
-            border:1px solid #B7F3DA;
-            padding:5px 10px;
-            border-radius:999px;
-            font-size:.72rem;
-            font-weight:900;
-            margin-bottom:12px;
-        }
-        .rb-metric-label {
-            color:#64748B;
-            font-size:.78rem;
-            font-weight:850;
-            margin-bottom:1px;
-        }
-        .rb-metric-value {
-            color:#0F172A;
-            font-size:1.3rem;
-            font-weight:950;
-            line-height:1.2;
-        }
-        div[data-testid="stMetricValue"] {
-            color: #071936;
-            font-weight: 950;
-        }
-        div.stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #0D6EFD, #1956E8) !important;
-            border: 0 !important;
-            border-radius: 14px !important;
-            font-weight: 900 !important;
-            min-height: 48px;
-            box-shadow: 0 12px 28px rgba(13,110,253,.22);
-        }
-        @media (max-width: 900px) {
-            .rb-hero-shell { padding: 22px; }
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    """V2 landing page — full concept converted to Streamlit."""
 
-    with st.container():
-        st.markdown('<div class="rb-hero-shell">', unsafe_allow_html=True)
-        left, right = st.columns([1.08, .92], gap="large")
+    st.markdown("""
+    <style>
+    .block-container { padding-top: 1.5rem !important; }
 
-        with left:
-            st.markdown('<div class="rb-pill">🧭 Retirement Blueprint 101</div>', unsafe_allow_html=True)
-            st.markdown('<div class="rb-title">Know when you can retire — in plain English.</div>', unsafe_allow_html=True)
-            st.markdown(
-                '<p class="rb-copy">Answer a few simple questions and see whether your retirement plan looks <strong>strong, risky, or somewhere in between.</strong></p>',
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                '<p class="rb-copy">No confusing jargon. No giant spreadsheet. Just a simple retirement blueprint you can understand.</p>',
-                unsafe_allow_html=True,
-            )
-            if st.button("Start My Free Blueprint", type="primary", key="landing_start_top"):
-                go_to_page("Guided Questions")
-            st.markdown(
-                '<div class="rb-small-note">Educational planning tool. Not financial, tax, legal, or investment advice.</div>',
-                unsafe_allow_html=True,
-            )
+    /* ── Hero ── */
+    .rb-v2-hero {
+        background: linear-gradient(160deg, #ffffff 0%, #eef5ff 55%, #e8f8fa 100%);
+        border-radius: 28px; border: 1px solid #dce8fb;
+        padding: 40px 38px 36px 38px;
+        box-shadow: 0 20px 60px rgba(11,31,58,0.08);
+        margin-bottom: 24px;
+        position: relative; overflow: hidden;
+    }
+    .rb-v2-hero::before {
+        content: "";
+        position: absolute; top: -120px; right: -120px;
+        width: 400px; height: 400px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(26,110,245,0.07), transparent 70%);
+        pointer-events: none;
+    }
+    .rb-v2-tag {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: #fef4df; border: 1px solid #f0d897;
+        color: #c9860a; border-radius: 999px;
+        padding: 5px 14px; font-size: 0.78rem; font-weight: 700;
+        margin-bottom: 16px;
+    }
+    .rb-v2-headline {
+        font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
+        color: #0b1f3a; line-height: 1.1; letter-spacing: -0.03em;
+        margin-bottom: 8px;
+    }
+    .rb-v2-headline em { font-style: italic; color: #1a6ef5; }
+    .rb-v2-subhead {
+        font-size: 1.12rem; color: #3d5270; line-height: 1.5;
+        margin-bottom: 12px; font-weight: 500;
+    }
+    .rb-v2-body { font-size: 0.97rem; color: #6b7f96; line-height: 1.65; margin-bottom: 22px; }
+    .rb-v2-note { font-size: 0.75rem; color: #94a3b8; margin-top: 10px; }
 
-        with right:
-            with st.container(border=True):
-                st.markdown('<div class="rb-sample-title">Sample Blueprint</div>', unsafe_allow_html=True)
-                st.markdown('<span class="rb-example-pill">Example only</span>', unsafe_allow_html=True)
-                score_col, text_col = st.columns([.9, 1.1])
-                with score_col:
-                    st.metric("Blueprint Score", "72", "On Track")
-                    st.progress(72)
-                with text_col:
-                    st.markdown(
-                        "**Comfortable, with room to improve**  \nYour real blueprint will be built from your answers."
-                    )
+    /* Sample card */
+    .rb-v2-sample-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7f96; margin-bottom: 4px; }
+    .rb-v2-sample-pill { display: inline-block; background: #dffbf2; color: #047857; border: 1px solid #b7f3da; border-radius: 999px; padding: 3px 10px; font-size: 0.7rem; font-weight: 800; margin-bottom: 10px; }
+    .rb-v2-metric { margin-bottom: 10px; }
+    .rb-v2-metric-label { font-size: 0.7rem; font-weight: 700; color: #6b7f96; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rb-v2-metric-value { font-size: 1.25rem; font-weight: 900; color: #0b1f3a; line-height: 1.2; }
 
-                c1, c2 = st.columns(2)
-                with c1:
-                    st.markdown('<div class="rb-metric-label">Suggested retirement age</div><div class="rb-metric-value">62</div>', unsafe_allow_html=True)
-                    st.markdown('<div class="rb-metric-label">Monthly income gap</div><div class="rb-metric-value">$450</div>', unsafe_allow_html=True)
-                with c2:
-                    st.markdown('<div class="rb-metric-label">Money may last to</div><div class="rb-metric-value">Age 90</div>', unsafe_allow_html=True)
-                    st.markdown('<div class="rb-metric-label">Next best step</div><div class="rb-metric-value">Save $150/mo</div>', unsafe_allow_html=True)
+    /* Trust banner */
+    .rb-v2-trust {
+        background: linear-gradient(135deg, #0b1f3a, #152e52);
+        border-radius: 24px; padding: 36px 38px;
+        margin-bottom: 24px; position: relative; overflow: hidden;
+    }
+    .rb-v2-trust::before {
+        content: ""; position: absolute; top: -100px; right: -100px;
+        width: 350px; height: 350px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(26,110,245,0.15), transparent);
+        pointer-events: none;
+    }
+    .rb-v2-trust-stat { font-size: clamp(3rem, 6vw, 4.5rem); font-weight: 900; color: white; line-height: 1; }
+    .rb-v2-trust-stat span { color: #0cb4c4; }
+    .rb-v2-trust-stat-sub { font-size: 0.92rem; color: rgba(255,255,255,0.6); margin-top: 6px; line-height: 1.5; }
+    .rb-v2-trust-headline { font-size: 1.35rem; font-weight: 800; color: white; line-height: 1.3; margin-bottom: 10px; }
+    .rb-v2-trust-body { font-size: 0.95rem; color: rgba(255,255,255,0.65); line-height: 1.65; }
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    /* Answer cards */
+    .rb-v2-answer-card {
+        background: white; border: 1px solid #e4e9f0;
+        border-radius: 20px; padding: 20px 18px;
+        box-shadow: 0 6px 20px rgba(11,31,58,0.05);
+        height: 100%;
+        transition: transform 0.2s;
+    }
+    .rb-v2-answer-q { font-size: 0.72rem; font-weight: 800; color: #6b7f96; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e4e9f0; }
+    .rb-v2-answer-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .rb-v2-answer-label { font-size: 0.98rem; font-weight: 800; color: #0b1f3a; margin-bottom: 5px; }
+    .rb-v2-answer-desc { font-size: 0.82rem; color: #6b7f96; line-height: 1.5; }
 
-    st.markdown('<div class="rb-worry">', unsafe_allow_html=True)
-    worry_left, worry_mid, worry_right = st.columns([.65, 2.2, 1.05])
-    with worry_left:
-        st.metric("", "67%")
-    with worry_mid:
-        st.markdown(
-            '<div class="rb-worry-title">67% of people are more afraid of running out of money in retirement than death.</div>'
-            '<div class="rb-worry-copy">That is why this tool helps you see if your money may last.</div>',
-            unsafe_allow_html=True,
-        )
-    with worry_right:
-        st.markdown("**Clarity today.**  \n**Confidence tomorrow.**  \nA simple plan brings peace of mind.")
+    /* Style cards */
+    .rb-v2-style-card {
+        border: 2px solid #e4e9f0; border-radius: 20px; padding: 24px 20px;
+        background: white; cursor: pointer; height: 100%;
+        transition: all 0.2s;
+    }
+    .rb-v2-style-card.selected { border-color: #1a6ef5; background: #f0f6ff; }
+    .rb-v2-style-emoji { font-size: 1.8rem; margin-bottom: 10px; }
+    .rb-v2-style-name { font-size: 1.15rem; font-weight: 900; color: #0b1f3a; margin-bottom: 4px; }
+    .rb-v2-style-return { display: inline-block; background: #fef4df; color: #c9860a; border: 1px solid #f0d897; border-radius: 999px; padding: 2px 10px; font-size: 0.72rem; font-weight: 800; margin-bottom: 10px; }
+    .rb-v2-style-desc { font-size: 0.87rem; color: #6b7f96; line-height: 1.55; }
+    .rb-v2-style-good { font-size: 0.78rem; color: #1a6ef5; font-weight: 700; margin-top: 8px; }
+
+    /* Result rows */
+    .rb-v2-result-row {
+        display: flex; align-items: flex-start; gap: 14px;
+        background: white; border: 1px solid #e4e9f0;
+        border-radius: 18px; padding: 18px 20px;
+        box-shadow: 0 4px 14px rgba(11,31,58,0.04); margin-bottom: 12px;
+    }
+    .rb-v2-result-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .rb-v2-result-name { font-size: 0.98rem; font-weight: 800; color: #0b1f3a; margin-bottom: 3px; }
+    .rb-v2-result-desc { font-size: 0.83rem; color: #6b7f96; line-height: 1.5; }
+
+    /* Bucket cards */
+    .rb-v2-bucket-card { border-radius: 20px; padding: 24px; border: 1px solid; height: 100%; }
+    .rb-v2-bucket-card.b1 { background: linear-gradient(135deg, #eef8ff, #e8f4fe); border-color: #c3ddf7; }
+    .rb-v2-bucket-card.b2 { background: linear-gradient(135deg, #edfdf4, #e6faf0); border-color: #b7edce; }
+    .rb-v2-bucket-card.b3 { background: linear-gradient(135deg, #fef4e6, #fdf0da); border-color: #f5d99a; }
+    .rb-v2-bucket-num { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.88rem; color: white; margin-bottom: 10px; }
+    .b1 .rb-v2-bucket-num { background: #1a6ef5; }
+    .b2 .rb-v2-bucket-num { background: #16a34a; }
+    .b3 .rb-v2-bucket-num { background: #c9860a; }
+    .rb-v2-bucket-nickname { font-size: 1.1rem; font-weight: 900; color: #0b1f3a; margin-bottom: 2px; }
+    .rb-v2-bucket-formal { font-size: 0.72rem; color: #6b7f96; margin-bottom: 10px; }
+    .rb-v2-bucket-desc { font-size: 0.87rem; color: #3d5270; line-height: 1.55; }
+
+    /* Section headers */
+    .rb-v2-kicker { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #1a6ef5; margin-bottom: 6px; }
+    .rb-v2-section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 900; color: #0b1f3a; line-height: 1.15; margin-bottom: 10px; letter-spacing: -0.025em; }
+    .rb-v2-section-sub { font-size: 0.97rem; color: #6b7f96; line-height: 1.65; max-width: 520px; }
+
+    /* CTA */
+    .rb-v2-cta {
+        background: linear-gradient(160deg, #0b1f3a, #0d2744);
+        border-radius: 28px; padding: 52px 40px; text-align: center;
+        position: relative; overflow: hidden; margin-top: 24px;
+    }
+    .rb-v2-cta::before {
+        content: ""; position: absolute; top: -150px; left: 50%; transform: translateX(-50%);
+        width: 600px; height: 600px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(26,110,245,0.12), transparent 60%);
+        pointer-events: none;
+    }
+    .rb-v2-cta-kicker { display: inline-block; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border-radius: 999px; padding: 5px 16px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+    .rb-v2-cta-title { font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 900; color: white; line-height: 1.15; margin-bottom: 14px; letter-spacing: -0.025em; }
+    .rb-v2-cta-title em { font-style: italic; color: #0cb4c4; }
+    .rb-v2-cta-sub { font-size: 1rem; color: rgba(255,255,255,0.6); line-height: 1.65; margin-bottom: 32px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .rb-v2-cta-tagline { font-size: 0.78rem; color: rgba(255,255,255,0.3); margin-top: 18px; }
+
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #1a6ef5, #0d55d4) !important;
+        border: 0 !important; border-radius: 14px !important;
+        font-weight: 800 !important; min-height: 50px !important;
+        font-size: 1rem !important;
+        box-shadow: 0 10px 28px rgba(26,110,245,0.32) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ── HERO ──
+    st.markdown('''
+    <div class="rb-v2-hero">
+      <div class="rb-v2-tag">🧭 Retirement planning made simple</div>
+      <div class="rb-v2-headline">Know when you can retire —<br><em>in plain English.</em></div>
+      <div class="rb-v2-subhead">See whether your money may last, what age looks strongest, and what steps could improve your plan.</div>
+      <div class="rb-v2-body">You don't need a finance degree. Just answer a few simple questions — we'll turn your savings, spending, and Social Security into a retirement blueprint you can actually understand.</div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    hero_l, hero_r = st.columns([1.05, 0.95], gap="large")
+
+    with hero_l:
+        if st.button("🚀 Start My Free Blueprint", type="primary", use_container_width=True, key="lp_start_top"):
+            go_to_page("Guided Questions")
+        st.markdown('<div class="rb-v2-note">Educational planning tool. Not financial, tax, legal, or investment advice.</div>', unsafe_allow_html=True)
+
+    with hero_r:
+        with st.container(border=True):
+            st.markdown('<div class="rb-v2-sample-label">Sample Blueprint</div><span class="rb-v2-sample-pill">Example only — not your real numbers</span>', unsafe_allow_html=True)
+            sc1, sc2 = st.columns([1, 1.2])
+            with sc1:
+                st.metric("Blueprint Score", "72 / 100", "On Track")
+                st.progress(72)
+            with sc2:
+                st.markdown("**Comfortable, with room to improve**")
+                st.caption("Your real blueprint will be built from your own answers.")
+            m1, m2 = st.columns(2)
+            with m1:
+                st.markdown('<div class="rb-v2-metric"><div class="rb-v2-metric-label">Money may last to</div><div class="rb-v2-metric-value">Age 90</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="rb-v2-metric"><div class="rb-v2-metric-label">Biggest risk</div><div class="rb-v2-metric-value">Spending</div></div>', unsafe_allow_html=True)
+            with m2:
+                st.markdown('<div class="rb-v2-metric"><div class="rb-v2-metric-label">Best next step</div><div class="rb-v2-metric-value">Save $150/mo more</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="rb-v2-metric"><div class="rb-v2-metric-label">Can I retire at 62?</div><div class="rb-v2-metric-value">Maybe ⚠️</div></div>', unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── TRUST BANNER ──
+    st.markdown('''
+    <div class="rb-v2-trust">
+    ''', unsafe_allow_html=True)
+    t1, t2 = st.columns([0.7, 1.3], gap="large")
+    with t1:
+        st.markdown('''
+        <div class="rb-v2-trust-stat"><span>67</span>%</div>
+        <div class="rb-v2-trust-stat-sub">of people say they're more afraid of running out of money in retirement than almost anything else.</div>
+        ''', unsafe_allow_html=True)
+    with t2:
+        st.markdown('''
+        <div class="rb-v2-trust-headline">Your retirement decision is too important to guess.</div>
+        <div class="rb-v2-trust-body">Retirement Blueprint 101 helps turn that worry into a simple plan you can actually understand — built from your own numbers, explained in plain English, with no financial background required.</div>
+        ''', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    a, b, c = st.columns(3, gap="medium")
-    with a:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">📅 Can I retire when I want?</div><p class="rb-card-copy">See if your target retirement age looks realistic.</p></div>', unsafe_allow_html=True)
-    with b:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">🕒 Will my money last?</div><p class="rb-card-copy">View a simple money timeline built from your answers.</p></div>', unsafe_allow_html=True)
-    with c:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">📋 What should I improve first?</div><p class="rb-card-copy">Get plain-English next steps to strengthen your plan.</p></div>', unsafe_allow_html=True)
+    st.divider()
 
-    st.markdown("### How it works")
-    s1, s2, s3 = st.columns(3, gap="medium")
-    with s1:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">1. Answer simple questions</div><p class="rb-card-copy">Age, savings, spending, income, and Social Security.</p></div>', unsafe_allow_html=True)
-    with s2:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">2. Get your first blueprint</div><p class="rb-card-copy">See your score, timeline, and risk areas.</p></div>', unsafe_allow_html=True)
-    with s3:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">3. Improve your plan</div><p class="rb-card-copy">Compare options and see what helps most.</p></div>', unsafe_allow_html=True)
+    # ── WHAT THIS APP ANSWERS ──
+    st.markdown('''
+    <div class="rb-v2-kicker">What this app answers</div>
+    <div class="rb-v2-section-title">Five questions. Plain-English answers.</div>
+    <div class="rb-v2-section-sub" style="margin-bottom:24px;">No spreadsheets. No jargon. Just the answers that actually matter for your retirement.</div>
+    ''', unsafe_allow_html=True)
 
-    st.markdown("### Start simple. Go deeper only if you want.")
-    p1, p2, p3 = st.columns(3, gap="medium")
-    with p1:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">🛡️ Careful</div><p class="rb-card-copy">More cautious estimate using a 4.5% return.</p></div>', unsafe_allow_html=True)
-    with p2:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">⚖️ Balanced</div><p class="rb-card-copy">Middle-ground estimate using a 6.5% return.</p></div>', unsafe_allow_html=True)
-    with p3:
-        st.markdown('<div class="rb-section-card"><div class="rb-card-title">📈 Growth</div><p class="rb-card-copy">Higher-growth estimate using an 8.0% return.</p></div>', unsafe_allow_html=True)
+    qa1, qa2, qa3, qa4, qa5 = st.columns(5, gap="small")
+    answer_cards = [
+        (qa1, "📅", "Can I retire when I want?", "Yes / Maybe / Not Yet", "A simple verdict on whether your target retirement age looks realistic."),
+        (qa2, "🎯", "What age looks best?", "Retirement Age Comparison", "See how retiring at 60, 62, 65, or 67 changes your picture."),
+        (qa3, "🕒", "Will my money last?", "Plain-English Timeline", "A year-by-year picture of your savings from retirement to end of plan."),
+        (qa4, "⚠️", "What is my biggest risk?", "Your #1 Risk Area", "Spending, income, taxes, inflation, or market timing — named clearly."),
+        (qa5, "✅", "What should I do next?", "Your Top Improvements", "The highest-impact changes, in order of importance."),
+    ]
+    for col, icon, q, label, desc in answer_cards:
+        with col:
+            st.markdown(f'''
+            <div class="rb-v2-answer-card">
+              <div class="rb-v2-answer-q">{q}</div>
+              <div class="rb-v2-answer-icon">{icon}</div>
+              <div class="rb-v2-answer-label">{label}</div>
+              <div class="rb-v2-answer-desc">{desc}</div>
+            </div>
+            ''', unsafe_allow_html=True)
 
-    st.info("You do not need to know investment math. Pick the style that feels closest to you. You can adjust advanced settings later.")
+    st.divider()
 
-    with st.container(border=True):
-        st.markdown("### Retirement planning does not have to feel overwhelming.")
-        if st.button("Build My Blueprint", type="primary", use_container_width=True, key="landing_start_bottom"):
+    # ── HOW IT WORKS ──
+    st.markdown('''
+    <div class="rb-v2-kicker">How it works</div>
+    <div class="rb-v2-section-title">Three simple steps.</div>
+    ''', unsafe_allow_html=True)
+
+    hw1, hw2, hw3 = st.columns(3, gap="medium")
+    how_steps = [
+        (hw1, "1", "Answer simple questions", "Age, savings, monthly spending, Social Security, and any other income. Your best estimates are fine — you can always update them."),
+        (hw2, "2", "Get your first blueprint", "See your score, a year-by-year money timeline, your biggest risk, and your top next steps — all explained in plain English."),
+        (hw3, "3", "Ask 'what if?' questions", "Try retiring earlier, spending more, or delaying Social Security. See the difference instantly. Save and compare different versions of your plan."),
+    ]
+    for col, num, title, desc in how_steps:
+        with col:
+            with st.container(border=True):
+                st.markdown(f"**{num}. {title}**")
+                st.caption(desc)
+
+    st.divider()
+
+    # ── PLANNING STYLE ──
+    st.markdown('''
+    <div class="rb-v2-kicker">Choose your planning style</div>
+    <div class="rb-v2-section-title">No investment math required.</div>
+    <div class="rb-v2-section-sub" style="margin-bottom:24px;">Pick the style that matches how cautious you want the estimate to be. You can always change it later inside the app.</div>
+    ''', unsafe_allow_html=True)
+
+    ps1, ps2, ps3 = st.columns(3, gap="medium")
+    styles = [
+        (ps1, "🛡️", "Careful", "4.5% estimate", "I want a more cautious estimate. I'd rather plan for less and be surprised with more.", "Good for: peace of mind planners"),
+        (ps2, "⚖️", "Balanced", "6.5% estimate", "Use a normal middle-ground estimate — not too rosy, not too gloomy. Most people start here.", "Good for: most people ← start here"),
+        (ps3, "📈", "Growth", "8.0% estimate", "I'm comfortable with more ups and downs in the market and want a higher-growth estimate.", "Good for: long-horizon optimists"),
+    ]
+    for col, emoji, name, ret, desc, good in styles:
+        with col:
+            st.markdown(f'''
+            <div class="rb-v2-style-card">
+              <div class="rb-v2-style-emoji">{emoji}</div>
+              <div class="rb-v2-style-name">{name}</div>
+              <div class="rb-v2-style-return">{ret}</div>
+              <div class="rb-v2-style-desc">{desc}</div>
+              <div class="rb-v2-style-good">{good}</div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+    st.info("💡 You do not need to know investment math. Pick the style that feels right. You can adjust advanced settings any time inside the app.")
+
+    st.divider()
+
+    # ── RESULTS PREVIEW ──
+    st.markdown('''
+    <div class="rb-v2-kicker">Your blueprint will show</div>
+    <div class="rb-v2-section-title">Everything explained. Nothing hidden.</div>
+    <div class="rb-v2-section-sub" style="margin-bottom:24px;">Every number comes with a plain-English explanation of what it means and why it matters.</div>
+    ''', unsafe_allow_html=True)
+
+    rr1, rr2 = st.columns(2, gap="medium")
+    results = [
+        ("#eef4ff", "📊", "Blueprint Score", "A 0–100 score that tells you at a glance how strong your retirement plan looks right now."),
+        ("#edfdf4", "✅", "Can I Retire?", "A clear yes, maybe, or not yet answer — with a plain-English explanation of what's driving it."),
+        ("#fef4e6", "💰", "Money at Retirement", "Your estimated savings on the day you stop working — the number that starts everything."),
+        ("#f3eeff", "🔮", "Money Left Later", "How much you're estimated to have at the end of your plan. Positive is what you want."),
+        ("#fff0f0", "⚠️", "Biggest Risk", "The single area that most needs attention — named clearly, not buried in charts."),
+        ("#edfdf4", "🎯", "Best Next Step", "The one change that would do the most to improve your blueprint — ranked and explained."),
+    ]
+    left_results = results[:3]
+    right_results = results[3:]
+    with rr1:
+        for bg, icon, name, desc in left_results:
+            st.markdown(f'''
+            <div class="rb-v2-result-row">
+              <div class="rb-v2-result-icon" style="background:{bg};">{icon}</div>
+              <div><div class="rb-v2-result-name">{name}</div><div class="rb-v2-result-desc">{desc}</div></div>
+            </div>
+            ''', unsafe_allow_html=True)
+    with rr2:
+        for bg, icon, name, desc in right_results:
+            st.markdown(f'''
+            <div class="rb-v2-result-row">
+              <div class="rb-v2-result-icon" style="background:{bg};">{icon}</div>
+              <div><div class="rb-v2-result-name">{name}</div><div class="rb-v2-result-desc">{desc}</div></div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── BUCKET STRATEGY ──
+    st.markdown('''
+    <div class="rb-v2-kicker">Where your money lives</div>
+    <div class="rb-v2-section-title">Start simple. Go deeper only if you want.</div>
+    <div class="rb-v2-section-sub" style="margin-bottom:24px;">Most people start with one pool of money. You can optionally split it into buckets to see exactly where spending comes from.</div>
+    ''', unsafe_allow_html=True)
+
+    bucket_mode = st.radio(
+        "Choose a strategy to preview:",
+        ["Simple Plan (one pool)", "2-Bucket Strategy", "3-Bucket Strategy"],
+        horizontal=True,
+        key="lp_bucket_toggle"
+    )
+
+    if bucket_mode == "Simple Plan (one pool)":
+        with st.container(border=True):
+            st.markdown("#### 🏦 One pool of money")
+            st.write("Your total savings work as one pot that grows and pays for retirement over time. Simple, easy to understand, and a great starting point.")
+        if st.button("Show Me the 2-Bucket Strategy →", key="lp_2bucket"):
+            st.session_state.lp_bucket_toggle = "2-Bucket Strategy"
+            st.rerun()
+
+    elif bucket_mode == "2-Bucket Strategy":
+        bc1, bc2 = st.columns(2, gap="medium")
+        with bc1:
+            st.markdown('''
+            <div class="rb-v2-bucket-card b1">
+              <div class="rb-v2-bucket-num">1</div>
+              <div class="rb-v2-bucket-nickname">Safe Money</div>
+              <div class="rb-v2-bucket-formal">Bucket 1 — Near-term spending</div>
+              <div class="rb-v2-bucket-desc">Money set aside for the next 2–3 years of retirement expenses. Low risk. You know it's there when you need it.</div>
+            </div>
+            ''', unsafe_allow_html=True)
+        with bc2:
+            st.markdown('''
+            <div class="rb-v2-bucket-card b2">
+              <div class="rb-v2-bucket-num">2</div>
+              <div class="rb-v2-bucket-nickname">Growth Money</div>
+              <div class="rb-v2-bucket-formal">Bucket 2 — Long-term investing</div>
+              <div class="rb-v2-bucket-desc">The rest of your savings, invested for the long run. As Bucket 1 empties, this refills it over time.</div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+    else:
+        bc1, bc2, bc3 = st.columns(3, gap="medium")
+        bucket3_data = [
+            (bc1, "b1", "1", "Safe Money", "Bucket 1 — Next 2–3 years", "Cash and very safe investments. Ready to spend right away. Protects you if the market drops when you first retire."),
+            (bc2, "b2", "2", "Refill Money", "Bucket 2 — Years 4–10", "Moderate investments that grow slowly and steadily. This tops up Bucket 1 when it gets low."),
+            (bc3, "b3", "3", "Growth Money", "Bucket 3 — Long-term (10+ years)", "Invested for maximum growth over time. You won't touch this for many years — let it grow."),
+        ]
+        for col, cls, num, nick, formal, desc in bucket3_data:
+            with col:
+                st.markdown(f'''
+                <div class="rb-v2-bucket-card {cls}">
+                  <div class="rb-v2-bucket-num">{num}</div>
+                  <div class="rb-v2-bucket-nickname">{nick}</div>
+                  <div class="rb-v2-bucket-formal">{formal}</div>
+                  <div class="rb-v2-bucket-desc">{desc}</div>
+                </div>
+                ''', unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── FINAL CTA ──
+    st.markdown('''
+    <div class="rb-v2-cta">
+      <div style="position:relative;z-index:1;">
+        <div class="rb-v2-cta-kicker">Free to use — no account needed to start</div>
+        <div class="rb-v2-cta-title">Retirement planning does not have to feel <em>overwhelming.</em></div>
+        <div class="rb-v2-cta-sub">Answer a few simple questions and get your first retirement blueprint in minutes. Written in plain English, built around your own numbers.</div>
+      </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    cta_l, cta_c, cta_r = st.columns([1, 2, 1])
+    with cta_c:
+        if st.button("🚀 Start My Free Blueprint", type="primary", use_container_width=True, key="lp_start_bottom"):
             go_to_page("Guided Questions")
+        st.markdown('<div class="rb-v2-cta-tagline" style="text-align:center;margin-top:10px;">Built to help everyday people understand retirement planning in plain English.</div>', unsafe_allow_html=True)
+
+
 
 
 if active_page == PAGE_NAMES[0]:
@@ -5903,13 +6076,13 @@ if active_page == PAGE_NAMES[6]:
             st.progress(rtv_score / 100)
 
             if rtv_score >= 90:
-                st.success("Your retirement timing currently looks extremely strong under these assumptions.")
+                st.success("🎉 Your plan looks very strong! Based on your numbers, your money should last well past your target age. You have real flexibility.")
             elif rtv_score >= 75:
-                st.success("Your retirement timing appears viable with moderate flexibility.")
+                st.success("👍 Your plan looks solid. Your money appears likely to last through retirement. There may be some room to improve, but you're in good shape.")
             elif rtv_score >= 60:
-                st.warning("Your plan may work, but optimization opportunities remain.")
+                st.warning("⚠️ Your plan could work, but it's a bit tight. A few changes — like retiring slightly later, spending a bit less, or adding more savings — could make a big difference.")
             else:
-                st.error("Your current retirement timing assumptions appear aggressive.")
+                st.error("🚨 Your plan needs attention. Based on these numbers, your money may run out before the end of your plan. Don't panic — small changes now can help a lot.")
 
         st.subheader("Blueprint Score")
 
@@ -5923,13 +6096,13 @@ if active_page == PAGE_NAMES[6]:
         st.progress(rtv_score / 100)
 
         if rtv_score >= 90:
-            st.success("Blueprint Score: Very strong retirement readiness.")
+            st.success(f"✅ Score {rtv_score}/100 — Very Strong. Your plan looks like it has plenty of room. Your money should last well past your target age based on these numbers.")
         elif rtv_score >= 75:
-            st.success("Blueprint Score: Your target retirement age appears likely viable.")
+            st.success(f"✅ Score {rtv_score}/100 — Strong. Your plan looks good. Your money appears likely to last through retirement with some cushion.")
         elif rtv_score >= 60:
-            st.warning("Blueprint Score: Your plan may work, but it needs optimization.")
+            st.warning(f"⚠️ Score {rtv_score}/100 — Needs Some Work. Your plan might work, but it's closer than you'd want. Look at the Action Plan below for the easiest ways to improve.")
         else:
-            st.error("Blueprint Score: Your retirement timing appears high risk under current assumptions.")
+            st.error(f"🚨 Score {rtv_score}/100 — High Risk. Based on these numbers, your money may run out. Check the Action Plan — even one or two changes can improve this significantly.")
 
         with st.expander("Why did I get this Blueprint Score?"):
             if rtv_reasons:
