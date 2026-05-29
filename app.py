@@ -1614,6 +1614,35 @@ def tax_assumption_note():
 
 
 # -----------------------------
+# Required Minimum Distributions (RMDs)
+# -----------------------------
+# Under SECURE 2.0, RMDs from traditional (pre-tax) accounts begin at age 73.
+# These divisors are from the IRS Uniform Lifetime Table (used by most retirees).
+# The RMD for a year = prior-year-end traditional balance / divisor for that age.
+RMD_START_AGE = 73
+RMD_UNIFORM_LIFETIME = {
+    73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1,
+    80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2,
+    87: 14.4, 88: 13.7, 89: 12.9, 90: 12.2, 91: 11.5, 92: 10.8, 93: 10.1,
+    94: 9.5, 95: 8.9, 96: 8.4, 97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4,
+    101: 6.0, 102: 5.6, 103: 5.2, 104: 4.9, 105: 4.6, 106: 4.3, 107: 4.1,
+    108: 3.9, 109: 3.7, 110: 3.5,
+}
+
+
+def required_minimum_distribution(age, traditional_balance):
+    """Return the RMD a retiree must take from traditional accounts at this age.
+    Returns 0 before the RMD start age. Uses the IRS Uniform Lifetime Table.
+    """
+    age = int(age)
+    bal = max(float(traditional_balance or 0), 0)
+    if age < RMD_START_AGE or bal <= 0:
+        return 0.0
+    divisor = RMD_UNIFORM_LIFETIME.get(age, RMD_UNIFORM_LIFETIME[110])
+    return bal / divisor
+
+
+# -----------------------------
 # User Help / Tooltips
 # -----------------------------
 FIELD_HELP = {
@@ -2528,11 +2557,16 @@ def run_projection():
 
         household_retired = age >= int(st.session_state.retire_age) and (not spouse_alive or spouse_age >= int(st.session_state.spouse_retire_age))
 
+        bucket1_refill_tax = 0.0
         if household_retired and bucket1 <= 0 and base_spending > 0:
             target = annual_spending_for_age(age) * float(st.session_state.bucket1_years)
             transfer = min(trad, target)
             trad -= transfer
+            # Moving pre-tax money into the safe bucket is a taxable event. The 80% that lands
+            # in Bucket 1 is the after-tax amount; the 20% withheld is recorded as tax rather
+            # than silently disappearing from the plan.
             bucket1 += transfer * 0.80
+            bucket1_refill_tax = transfer * 0.20
 
         conversion = 0
         if age >= int(st.session_state.retire_age) and float(st.session_state.annual_conversion) > 0:
@@ -2540,11 +2574,23 @@ def run_projection():
             trad -= conversion
             roth += conversion
 
-        user_ss = float(st.session_state.user_ss) if age >= int(st.session_state.user_ss_age) else 0
-        spouse_ss = float(st.session_state.spouse_ss) if spouse_alive and spouse_age >= int(st.session_state.spouse_ss_age) else 0
+        # Required Minimum Distributions (SECURE 2.0): starting at age 73, retirees MUST
+        # withdraw a minimum amount from traditional accounts each year, whether they need
+        # the cash or not. The forced withdrawal is taxable ordinary income and the leftover
+        # (after the spending gap is met) lands in the taxable brokerage account.
+        rmd_amount = required_minimum_distribution(age, trad)
+        if rmd_amount > 0:
+            rmd_amount = min(rmd_amount, trad)
+            trad -= rmd_amount
+
+        # Social Security receives an annual cost-of-living adjustment (COLA), modeled here
+        # using the same inflation rate, compounded from today so it keeps pace with spending.
+        ss_cola_factor = (1 + float(st.session_state.inflation)) ** max(age - int(st.session_state.current_age), 0)
+        user_ss = float(st.session_state.user_ss) * ss_cola_factor if age >= int(st.session_state.user_ss_age) else 0
+        spouse_ss = float(st.session_state.spouse_ss) * ss_cola_factor if spouse_alive and spouse_age >= int(st.session_state.spouse_ss_age) else 0
         if st.session_state.has_spouse and not spouse_alive:
             if st.session_state.survivor_ss_strategy == "Higher benefit continues":
-                ss_income = max(user_ss, float(st.session_state.spouse_ss))
+                ss_income = max(user_ss, float(st.session_state.spouse_ss) * ss_cola_factor)
             else:
                 ss_income = user_ss
         else:
@@ -2557,11 +2603,14 @@ def run_projection():
 
         spending = 0
         if household_retired:
-            years_retired = max(age - int(st.session_state.retire_age), 0)
+            # Inflate spending from TODAY (current_age), not from retirement age, so that
+            # pre-retirement inflation is captured. A plan starting 15 years out should reflect
+            # 15 years of price increases by the time retirement begins.
+            years_from_today = max(age - int(st.session_state.current_age), 0)
             if st.session_state.has_spouse and not spouse_alive and float(st.session_state.survivor_spending) > 0:
-                spending = float(st.session_state.survivor_spending) * ((1 + float(st.session_state.inflation)) ** years_retired)
+                spending = float(st.session_state.survivor_spending) * ((1 + float(st.session_state.inflation)) ** years_from_today)
             else:
-                spending = annual_spending_for_age(age) * ((1 + float(st.session_state.inflation)) ** years_retired)
+                spending = annual_spending_for_age(age) * ((1 + float(st.session_state.inflation)) ** years_from_today)
 
         healthcare = 0
         if age >= int(st.session_state.retire_age):
@@ -2573,11 +2622,19 @@ def run_projection():
         total_spending = spending + healthcare + mortgage_payment
         non_portfolio_income = ss_income + other_income
 
-        ordinary_income_before_withdrawals = float(inc.get("taxable", 0)) + conversion
+        # The RMD is forced taxable ordinary income, on top of other income and conversions.
+        ordinary_income_before_withdrawals = float(inc.get("taxable", 0)) + conversion + rmd_amount
         base_tax_estimate = estimate_federal_tax(ordinary_income_before_withdrawals, social_security_income=ss_income)
         base_federal_tax = base_tax_estimate["federal_tax"]
+        # The 20% withheld on a Bucket 1 refill is an additional tax cost this year.
+        base_federal_tax += bucket1_refill_tax
         income_gap = max(total_spending + base_federal_tax - non_portfolio_income, 0)
-        withdrawal_needed = income_gap
+
+        # The RMD cash is already out of the traditional account. Use it first to cover the
+        # gap; any leftover RMD cash is reinvested in the taxable brokerage account.
+        used_rmd_for_gap = min(rmd_amount, income_gap)
+        withdrawal_needed = max(income_gap - rmd_amount, 0)
+        taxable += max(rmd_amount - income_gap, 0)
 
         used_b1 = used_taxable = used_trad = used_roth = 0.0
         federal_tax_from_trad = 0.0
@@ -2593,7 +2650,8 @@ def run_projection():
 
         estimated_federal_tax = base_federal_tax + federal_tax_from_trad
         final_tax_estimate = estimate_federal_tax(ordinary_income_before_withdrawals + used_trad, social_security_income=ss_income)
-        actual_withdrawal = used_b1 + used_taxable + used_trad + used_roth
+        # Actual cash drawn to fund the household: RMD used for the gap, plus account withdrawals.
+        actual_withdrawal = used_rmd_for_gap + used_b1 + used_taxable + used_trad + used_roth
         end_total = trad + roth + taxable + bucket1
         leftover = max(non_portfolio_income + actual_withdrawal - total_spending - estimated_federal_tax, 0)
 
@@ -3017,11 +3075,16 @@ def run_projection_with_return_sequence(return_sequence):
 
         household_retired = age >= int(st.session_state.retire_age) and (not spouse_alive or spouse_age >= int(st.session_state.spouse_retire_age))
 
+        bucket1_refill_tax = 0.0
         if household_retired and bucket1 <= 0 and base_spending > 0:
             target = annual_spending_for_age(age) * float(st.session_state.bucket1_years)
             transfer = min(trad, target)
             trad -= transfer
+            # Moving pre-tax money into the safe bucket is a taxable event. The 80% that lands
+            # in Bucket 1 is the after-tax amount; the 20% withheld is recorded as tax rather
+            # than silently disappearing from the plan.
             bucket1 += transfer * 0.80
+            bucket1_refill_tax = transfer * 0.20
 
         conversion = 0
         if age >= int(st.session_state.retire_age) and float(st.session_state.annual_conversion) > 0:
@@ -3029,12 +3092,24 @@ def run_projection_with_return_sequence(return_sequence):
             trad -= conversion
             roth += conversion
 
-        user_ss = float(st.session_state.user_ss) if age >= int(st.session_state.user_ss_age) else 0
-        spouse_ss = float(st.session_state.spouse_ss) if spouse_alive and spouse_age >= int(st.session_state.spouse_ss_age) else 0
+        # Required Minimum Distributions (SECURE 2.0): starting at age 73, retirees MUST
+        # withdraw a minimum amount from traditional accounts each year, whether they need
+        # the cash or not. The forced withdrawal is taxable ordinary income and the leftover
+        # (after the spending gap is met) lands in the taxable brokerage account.
+        rmd_amount = required_minimum_distribution(age, trad)
+        if rmd_amount > 0:
+            rmd_amount = min(rmd_amount, trad)
+            trad -= rmd_amount
+
+        # Social Security receives an annual cost-of-living adjustment (COLA), modeled here
+        # using the same inflation rate, compounded from today so it keeps pace with spending.
+        ss_cola_factor = (1 + float(st.session_state.inflation)) ** max(age - int(st.session_state.current_age), 0)
+        user_ss = float(st.session_state.user_ss) * ss_cola_factor if age >= int(st.session_state.user_ss_age) else 0
+        spouse_ss = float(st.session_state.spouse_ss) * ss_cola_factor if spouse_alive and spouse_age >= int(st.session_state.spouse_ss_age) else 0
 
         if st.session_state.has_spouse and not spouse_alive:
             if st.session_state.survivor_ss_strategy == "Higher benefit continues":
-                ss_income = max(user_ss, float(st.session_state.spouse_ss))
+                ss_income = max(user_ss, float(st.session_state.spouse_ss) * ss_cola_factor)
             else:
                 ss_income = user_ss
         else:
@@ -3046,11 +3121,14 @@ def run_projection_with_return_sequence(return_sequence):
 
         spending = 0
         if household_retired:
-            years_retired = max(age - int(st.session_state.retire_age), 0)
+            # Inflate spending from TODAY (current_age), not from retirement age, so that
+            # pre-retirement inflation is captured. A plan starting 15 years out should reflect
+            # 15 years of price increases by the time retirement begins.
+            years_from_today = max(age - int(st.session_state.current_age), 0)
             if st.session_state.has_spouse and not spouse_alive and float(st.session_state.survivor_spending) > 0:
-                spending = float(st.session_state.survivor_spending) * ((1 + float(st.session_state.inflation)) ** years_retired)
+                spending = float(st.session_state.survivor_spending) * ((1 + float(st.session_state.inflation)) ** years_from_today)
             else:
-                spending = annual_spending_for_age(age) * ((1 + float(st.session_state.inflation)) ** years_retired)
+                spending = annual_spending_for_age(age) * ((1 + float(st.session_state.inflation)) ** years_from_today)
 
         healthcare = 0
         if age >= int(st.session_state.retire_age):
@@ -3062,11 +3140,15 @@ def run_projection_with_return_sequence(return_sequence):
         total_spending = spending + healthcare + mortgage_payment
         non_portfolio_income = ss_income + other_income
 
-        ordinary_income_before_withdrawals = float(inc.get("taxable", 0)) + conversion
+        ordinary_income_before_withdrawals = float(inc.get("taxable", 0)) + conversion + rmd_amount
         base_tax_estimate = estimate_federal_tax(ordinary_income_before_withdrawals, social_security_income=ss_income)
         base_federal_tax = base_tax_estimate["federal_tax"]
+        base_federal_tax += bucket1_refill_tax
         income_gap = max(total_spending + base_federal_tax - non_portfolio_income, 0)
-        withdrawal_needed = income_gap
+
+        used_rmd_for_gap = min(rmd_amount, income_gap)
+        withdrawal_needed = max(income_gap - rmd_amount, 0)
+        taxable += max(rmd_amount - income_gap, 0)
 
         used_b1 = used_taxable = used_trad = used_roth = 0.0
         federal_tax_from_trad = 0.0
@@ -3095,7 +3177,7 @@ def run_projection_with_return_sequence(return_sequence):
 
         estimated_federal_tax = base_federal_tax + federal_tax_from_trad
         final_tax_estimate = estimate_federal_tax(ordinary_income_before_withdrawals + used_trad, social_security_income=ss_income)
-        actual_withdrawal = used_b1 + used_taxable + used_trad + used_roth
+        actual_withdrawal = used_rmd_for_gap + used_b1 + used_taxable + used_trad + used_roth
         end_total = trad + roth + taxable + bucket1
 
         rows.append({
@@ -6077,8 +6159,10 @@ if active_page == PAGE_NAMES[6]:
 
             if rtv_score >= 90:
                 st.success("🎉 Your plan looks very strong! Based on your numbers, your money should last well past your target age. You have real flexibility.")
-            elif rtv_score >= 75:
-                st.success("👍 Your plan looks solid. Your money appears likely to last through retirement. There may be some room to improve, but you're in good shape.")
+            elif rtv_score >= 80:
+                st.success("👍 Your plan looks strong. Your money appears likely to last through retirement with a healthy cushion.")
+            elif rtv_score >= 70:
+                st.info("🙂 Your plan looks likely viable. It appears workable, but it's worth stress-testing for bad markets and higher costs.")
             elif rtv_score >= 60:
                 st.warning("⚠️ Your plan could work, but it's a bit tight. A few changes — like retiring slightly later, spending a bit less, or adding more savings — could make a big difference.")
             else:
@@ -6097,10 +6181,12 @@ if active_page == PAGE_NAMES[6]:
 
         if rtv_score >= 90:
             st.success(f"✅ Score {rtv_score}/100 — Very Strong. Your plan looks like it has plenty of room. Your money should last well past your target age based on these numbers.")
-        elif rtv_score >= 75:
-            st.success(f"✅ Score {rtv_score}/100 — Strong. Your plan looks good. Your money appears likely to last through retirement with some cushion.")
+        elif rtv_score >= 80:
+            st.success(f"✅ Score {rtv_score}/100 — Strong. Your plan looks good. Your money appears likely to last through retirement with a healthy cushion.")
+        elif rtv_score >= 70:
+            st.info(f"🙂 Score {rtv_score}/100 — Likely Viable. Your plan appears workable, but it's worth stress-testing. The Action Plan shows ways to build more cushion.")
         elif rtv_score >= 60:
-            st.warning(f"⚠️ Score {rtv_score}/100 — Needs Some Work. Your plan might work, but it's closer than you'd want. Look at the Action Plan below for the easiest ways to improve.")
+            st.warning(f"⚠️ Score {rtv_score}/100 — Needs Optimization. Your plan might work, but it's closer than you'd want. Look at the Action Plan below for the easiest ways to improve.")
         else:
             st.error(f"🚨 Score {rtv_score}/100 — High Risk. Based on these numbers, your money may run out. Check the Action Plan — even one or two changes can improve this significantly.")
 
