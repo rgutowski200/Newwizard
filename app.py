@@ -1096,6 +1096,161 @@ def inject_app_styles():
 inject_app_styles()
 
 
+# -----------------------------
+# First-visit onboarding welcome
+# -----------------------------
+def render_onboarding_welcome():
+    """Show a warm, plain-English welcome modal the first time a visitor arrives.
+    Uses st.session_state so it only appears once per browser session.
+    Displayed as a full-width overlay above everything else.
+    """
+    if st.session_state.get("onboarding_done"):
+        return
+
+    st.markdown("""
+    <style>
+    .rb-onboard-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(4px);
+    }
+    .rb-onboard-modal {
+        background: #ffffff;
+        border-radius: 28px;
+        max-width: 620px;
+        width: 100%;
+        padding: 40px 44px 36px 44px;
+        box-shadow: 0 40px 100px rgba(15, 23, 42, 0.22);
+        position: relative;
+        animation: rbModalIn 0.35s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes rbModalIn {
+        from { opacity: 0; transform: translateY(32px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .rb-onboard-logo {
+        width: 52px; height: 52px; border-radius: 16px;
+        background: linear-gradient(135deg, #0f62fe, #0891b2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: white; font-weight: 900;
+        box-shadow: 0 8px 20px rgba(15,98,254,0.28);
+        margin-bottom: 18px;
+    }
+    .rb-onboard-eyebrow {
+        font-size: 0.75rem; font-weight: 800;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        color: #0f62fe; margin-bottom: 8px;
+    }
+    .rb-onboard-title {
+        font-size: 1.7rem; font-weight: 900;
+        color: #0f172a; line-height: 1.15;
+        margin-bottom: 12px; letter-spacing: -0.025em;
+    }
+    .rb-onboard-sub {
+        font-size: 1rem; color: #475569;
+        line-height: 1.6; margin-bottom: 24px;
+    }
+    .rb-onboard-steps {
+        display: flex; flex-direction: column;
+        gap: 12px; margin-bottom: 28px;
+    }
+    .rb-onboard-step {
+        display: flex; align-items: flex-start; gap: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 13px 16px;
+    }
+    .rb-onboard-step-num {
+        width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+        background: linear-gradient(135deg, #0f62fe, #0891b2);
+        color: white; font-weight: 900; font-size: 0.85rem;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .rb-onboard-step-text strong {
+        display: block; color: #0f172a;
+        font-size: 0.92rem; font-weight: 800; margin-bottom: 2px;
+    }
+    .rb-onboard-step-text span {
+        color: #64748b; font-size: 0.85rem; line-height: 1.45;
+    }
+    .rb-onboard-note {
+        font-size: 0.78rem; color: #94a3b8;
+        text-align: center; margin-top: 14px; line-height: 1.5;
+    }
+    @media (max-width: 680px) {
+        .rb-onboard-modal { padding: 28px 22px 24px 22px; }
+        .rb-onboard-title { font-size: 1.35rem; }
+    }
+    </style>
+
+    <div class="rb-onboard-overlay">
+      <div class="rb-onboard-modal">
+        <div class="rb-onboard-logo">↗</div>
+        <div class="rb-onboard-eyebrow">Welcome</div>
+        <div class="rb-onboard-title">Let's figure out if you're ready to retire.</div>
+        <p class="rb-onboard-sub">
+            No financial background needed. This tool asks you a few simple questions
+            and gives you a clear picture of where your retirement stands — in plain English.
+        </p>
+        <div class="rb-onboard-steps">
+          <div class="rb-onboard-step">
+            <div class="rb-onboard-step-num">1</div>
+            <div class="rb-onboard-step-text">
+              <strong>Tell us the basics</strong>
+              <span>Your age, when you want to retire, how much you've saved, and what you spend each month.</span>
+            </div>
+          </div>
+          <div class="rb-onboard-step">
+            <div class="rb-onboard-step-num">2</div>
+            <div class="rb-onboard-step-text">
+              <strong>See your results right away</strong>
+              <span>You'll get a simple score, a year-by-year money picture, and plain-English next steps.</span>
+            </div>
+          </div>
+          <div class="rb-onboard-step">
+            <div class="rb-onboard-step-num">3</div>
+            <div class="rb-onboard-step-text">
+              <strong>Ask "what if?" questions</strong>
+              <span>Try retiring earlier, spending more, or delaying Social Security — and see the difference instantly.</span>
+            </div>
+          </div>
+        </div>
+        <p class="rb-onboard-note">
+            Free to use &nbsp;·&nbsp; No account needed to start &nbsp;·&nbsp;
+            Educational tool only — not financial advice
+        </p>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Streamlit button renders below the overlay — clicking it dismisses everything
+    col_l, col_btn, col_r = st.columns([1, 2, 1])
+    with col_btn:
+        if st.button(
+            "Got it — let's get started →",
+            type="primary",
+            use_container_width=True,
+            key="onboarding_dismiss_btn",
+        ):
+            st.session_state.onboarding_done = True
+            st.rerun()
+
+    st.stop()  # Nothing else renders until the user clicks through
+
+
+if "onboarding_done" not in st.session_state:
+    st.session_state.onboarding_done = False
+
+render_onboarding_welcome()
+
+
 def auth_box():
     """Keep authentication state available without rendering a second account/logout bar.
 
