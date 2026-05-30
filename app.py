@@ -6079,6 +6079,214 @@ if active_page == PAGE_NAMES[5]:
 
 # can_run and df are initialized safely before page rendering above.
 
+
+def render_dashboard_summary(df, rtv_score, rtv_label, ending, depleted, risk_scores, summary):
+    """Plain-English dashboard hero: a clear verdict, the four numbers that matter,
+    a human-readable readout, a retirement health check, and a money timeline.
+    Everything is wired to the real projection (df) and session inputs.
+    """
+    retire_age = int(st.session_state.retire_age)
+    end_age = int(st.session_state.end_age)
+    current_age = int(st.session_state.current_age)
+    monthly_gap = float(summary["annual_spending"]) / 12 - float(summary["annual_income"]) / 12
+
+    # A retirement-specific monthly gap is clearer if taken from the first few retired years.
+    retired_rows = df[df["Household Retired"] == True] if "Household Retired" in df.columns else df
+    if not retired_rows.empty:
+        first_years = retired_rows.head(5)
+        avg_gap_annual = float((first_years["Total Spending"] - first_years["Total Non-Portfolio Income"]).clip(lower=0).mean())
+        monthly_gap = avg_gap_annual / 12
+
+    # ---- Verdict wording, aligned with the score labels ----
+    can_retire = not depleted and rtv_score >= 60
+    if rtv_score >= 90:
+        v_tag, v_class = "★ Very Strong", "green"
+        v_head = f"Yes — you look ready to retire at {retire_age}."
+        v_body = f"Based on the numbers you entered, your money should comfortably last through age {end_age}, with a healthy cushion left over. This is a strong starting point — the next smart move is to stress-test it against a few bad market years."
+    elif rtv_score >= 80:
+        v_tag, v_class = "✓ Strong", "green"
+        v_head = f"Yes — retiring at {retire_age} looks workable."
+        v_body = f"Your plan appears to last through age {end_age} with a solid cushion. A few small improvements could make it even more comfortable."
+    elif rtv_score >= 70:
+        v_tag, v_class = "🙂 Likely Viable", "blue"
+        v_head = f"Probably — retiring at {retire_age} looks workable, with some watch-points."
+        v_body = f"Your plan appears to hold up through age {end_age}, but it's closer than ideal. It's worth stress-testing and looking at the action plan for easy wins."
+    elif rtv_score >= 60:
+        v_tag, v_class = "⚠️ Needs Optimization", "amber"
+        v_head = f"Maybe — retiring at {retire_age} is tight."
+        v_body = "Your plan might work, but there isn't much margin for surprises. Small changes — retiring a little later, spending a little less, or saving more — could make a real difference."
+    else:
+        v_tag, v_class = "🚨 High Risk", "red"
+        v_head = f"Not yet — retiring at {retire_age} looks risky."
+        v_body = "Based on these numbers, your money may run out before the end of your plan. Don't panic — the action plan shows the highest-impact changes to turn this around."
+
+    badge_grad = {
+        "green": "linear-gradient(135deg,#16a34a,#0ea968)",
+        "blue":  "linear-gradient(135deg,#1a6ef5,#0891b2)",
+        "amber": "linear-gradient(135deg,#d97706,#f59e0b)",
+        "red":   "linear-gradient(135deg,#dc2626,#ef4444)",
+    }[v_class]
+    border_col = {"green":"#bbf7d0","blue":"#cfe0fd","amber":"#fcd34d","red":"#fecaca"}[v_class]
+    bg_grad = {
+        "green":"linear-gradient(135deg,#ecfdf3,#f0fdf9)",
+        "blue":"linear-gradient(135deg,#eff5ff,#ecfeff)",
+        "amber":"linear-gradient(135deg,#fffbeb,#fff7ed)",
+        "red":"linear-gradient(135deg,#fef2f2,#fff5f5)",
+    }[v_class]
+    tag_col = {"green":"#15803d","blue":"#0d55d4","amber":"#d97706","red":"#dc2626"}[v_class]
+
+    # ---- Big verdict banner ----
+    st.markdown(f"""
+    <div style="border:1px solid {border_col};background:{bg_grad};border-radius:22px;padding:24px 28px;
+         margin:6px 0 18px 0;display:flex;align-items:center;gap:22px;box-shadow:0 10px 30px rgba(11,31,58,.06);">
+      <div style="width:96px;height:96px;border-radius:24px;flex-shrink:0;display:flex;flex-direction:column;
+           align-items:center;justify-content:center;background:{badge_grad};color:#fff;box-shadow:0 10px 26px rgba(11,31,58,.18);">
+        <div style="font-size:2.5rem;font-weight:900;line-height:1;">{rtv_score}</div>
+        <div style="font-size:.68rem;opacity:.85;font-weight:700;">OUT OF 100</div>
+      </div>
+      <div style="flex:1;">
+        <span style="display:inline-block;background:#fff;color:{tag_col};border:1px solid {border_col};
+              border-radius:999px;padding:3px 12px;font-size:.78rem;font-weight:800;margin-bottom:6px;">{v_tag}</span>
+        <div style="font-size:1.45rem;font-weight:800;color:#0b1f3a;margin-bottom:4px;line-height:1.2;">{v_head}</div>
+        <div style="color:#3d5270;font-size:1rem;max-width:680px;">{v_body}</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- The 4 numbers that matter, as plain questions ----
+    st.markdown('<div style="font-size:.76rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#1a6ef5;margin:8px 0 10px 4px;">The 4 numbers that matter most</div>', unsafe_allow_html=True)
+
+    last_age = int(df["Age"].iloc[-1])
+    lasts_text = f"To age {last_age}+" if not depleted else f"Until age {last_age}"
+    lasts_chip = "Lasts the whole plan" if not depleted else "Runs out early"
+    lasts_color = "green" if not depleted else "amber"
+    retire_answer = "Yes" if can_retire else ("Tight" if rtv_score >= 50 else "Not yet")
+    retire_color = "green" if rtv_score >= 80 else ("blue" if rtv_score >= 70 else "amber")
+
+    chip_styles = {
+        "green":("#ecfdf3","#15803d"), "blue":("#eff5ff","#0d55d4"),
+        "amber":("#fef3c7","#d97706"),
+    }
+    def _card(label, tip, value, vcolor, chip_text, chip_color, note):
+        vcol = {"green":"#15803d","amber":"#d97706","ink":"#0d1b2e"}.get(vcolor,"#0d1b2e")
+        cbg, cfg = chip_styles[chip_color]
+        return f"""<div style="background:#fff;border:1px solid #e4e9f0;border-radius:18px;padding:20px;
+            box-shadow:0 6px 20px rgba(11,31,58,.05);height:100%;">
+          <div style="font-size:.86rem;font-weight:700;color:#3d5270;margin-bottom:8px;" title="{tip}">{label}</div>
+          <div style="font-size:1.8rem;font-weight:800;color:{vcol};line-height:1.1;margin-bottom:6px;font-family:'Lora',serif;">{value}</div>
+          <span style="display:inline-block;background:{cbg};color:{cfg};border-radius:999px;padding:2px 10px;font-size:.72rem;font-weight:800;margin-bottom:8px;">{chip_text}</span>
+          <div style="font-size:.82rem;color:#6b7f96;line-height:1.45;">{note}</div>
+        </div>"""
+
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown(_card(f"Can I retire at {retire_age}?", "Whether your target retirement age looks realistic.",
+            retire_answer, retire_color if retire_color!="blue" else "ink", "Based on your plan", retire_color if retire_color!="ink" else "blue",
+            "Your savings and income vs. when you want to stop working."), unsafe_allow_html=True)
+    with c2:
+        st.markdown(_card("Will my money last?", "Whether your savings last through the end of your plan.",
+            lasts_text, "green" if not depleted else "amber", lasts_chip, lasts_color,
+            "Whether your money outlasts your plan, or runs out early."), unsafe_allow_html=True)
+    with c3:
+        st.markdown(_card("Money left at the end", "Estimated savings remaining at your final plan age. A cushion, not a guarantee.",
+            compact_money_label(ending), "ink", f"Cushion at age {end_age}", "blue",
+            "An estimated leftover balance — your safety margin."), unsafe_allow_html=True)
+    with c4:
+        st.markdown(_card("Monthly gap to cover", "After Social Security and other income, what your savings must cover each month.",
+            money(max(monthly_gap, 0)), "amber", "From your savings", "amber",
+            "After Social Security & income, this comes from savings each month."), unsafe_allow_html=True)
+
+    # ---- Plain-English readout ----
+    monthly_spend = float(summary["annual_spending"]) / 12
+    ss_start = int(st.session_state.user_ss_age)
+    readout = (
+        f"You told us you want to retire at <b>{retire_age}</b> and spend about <b>{money(monthly_spend)}/month</b>. "
+        f"After your Social Security begins around age <b>{ss_start}</b>, your savings need to cover roughly "
+        f"<b>{money(max(monthly_gap,0))}/month</b>. "
+    )
+    if not depleted and ending > 0:
+        readout += (f"The good news: your nest egg is large enough that you're projected to still have about "
+                    f"<b>{compact_money_label(ending)}</b> at age {end_age}. The main thing to check next is what happens "
+                    f"if the market has a few bad years right after you retire.")
+    else:
+        readout += (f"Right now the plan shows your money running short before age {end_age}. The action plan can show you "
+                    f"the changes that would help most — often retiring a little later or trimming spending makes a big difference.")
+
+    st.markdown(f"""
+    <div style="background:#fff;border:1px solid #e4e9f0;border-left:5px solid #1a6ef5;border-radius:16px;
+         padding:18px 22px;margin-top:16px;">
+      <div style="font-size:1rem;color:#0b1f3a;font-weight:700;margin-bottom:6px;">💬 What this means, in plain English</div>
+      <div style="color:#3d5270;font-size:.94rem;line-height:1.65;">{readout}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- Retirement Health Check + Money Timeline ----
+    colL, colR = st.columns([1.15, 0.85])
+
+    with colL:
+        # Translate the numeric risk scores into plain-English statuses.
+        def status_from_risk(risk_val, good_below=45, warn_below=70):
+            if risk_val < good_below: return ("good", "Strong", "hs-good")
+            if risk_val < warn_below: return ("warn", "Worth a look", "hs-warn")
+            return ("bad", "Needs attention", "hs-bad")
+
+        income_cov = float(summary["income_coverage"])
+        cov_status = ("good","Strong") if income_cov >= 0.5 else (("warn","Moderate") if income_cov >= 0.3 else ("bad","Low"))
+        wr = float(summary["rough_wr"])
+        wr_status = ("good","Safe zone") if wr <= 0.05 else (("warn","Watch it") if wr <= 0.07 else ("bad","High"))
+        hc_status = ("warn","Worth a look") if retire_age < 65 else ("good","Covered")
+        seq = risk_scores.get("Sequence Risk", 50)
+        seq_status = ("good","Looks steady") if seq < 45 else (("warn","Stress-test it") if seq < 70 else ("bad","High risk"))
+        tax_status = ("good","Manageable") if risk_scores.get("Tax Risk",50) < 70 else ("warn","Worth a look")
+
+        def hrow(icon, title, desc, status):
+            scolor, slabel = status
+            sclass = {"good":"#ecfdf3|#15803d","warn":"#fef3c7|#d97706","bad":"#fef2f2|#dc2626"}[scolor]
+            sbg, sfg = sclass.split("|")
+            dotbg = {"good":"#ecfdf3","warn":"#fef3c7","bad":"#fef2f2"}[scolor]
+            return f"""<div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #e4e9f0;">
+              <div style="width:34px;height:34px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;background:{dotbg};">{icon}</div>
+              <div style="flex:1;"><div style="font-size:.92rem;font-weight:700;color:#0d1b2e;">{title}</div>
+              <div style="font-size:.82rem;color:#6b7f96;">{desc}</div></div>
+              <span style="font-size:.76rem;font-weight:800;padding:3px 11px;border-radius:999px;background:{sbg};color:{sfg};">{slabel}</span>
+            </div>"""
+
+        health_html = f"""<div style="background:#fff;border:1px solid #e4e9f0;border-radius:20px;padding:22px 24px;box-shadow:0 6px 20px rgba(11,31,58,.05);">
+          <div style="font-family:'Lora',serif;font-size:1.2rem;color:#0b1f3a;margin-bottom:2px;">Your Retirement Health Check</div>
+          <div style="color:#6b7f96;font-size:.88rem;margin-bottom:14px;">Quick checks on the parts of your plan that matter most.</div>
+          {hrow("💰","Income coverage","How much of your spending is covered by Social Security & pensions", cov_status)}
+          {hrow("📉","Spending rate","How fast you're drawing down savings (lower is safer)", wr_status)}
+          {hrow("🏥","Healthcare gap","Covering health costs before Medicare starts at 65", hc_status)}
+          {hrow("🧾","Tax pressure","How much of your withdrawals go to taxes", tax_status)}
+          {hrow("📊","Market timing risk","Risk of a bad market right when you retire", seq_status)}
+        </div>"""
+        st.markdown(health_html, unsafe_allow_html=True)
+
+    with colR:
+        # Build a real timeline from the user's actual ages.
+        rows_tl = []
+        rows_tl.append((f"Age {current_age}", "Where you are now", "Still saving" if current_age < retire_age else "Already retired"))
+        rows_tl.append((f"{retire_age}", "You retire", "Start drawing from savings; healthcare costs begin"))
+        if ss_start >= retire_age:
+            rows_tl.append((f"{ss_start}", "Social Security starts", "Your monthly gap shrinks as SS income begins"))
+        if end_age >= 73:
+            rows_tl.append(("73", "Required withdrawals begin", "The IRS requires minimum withdrawals from your 401(k)/IRA"))
+        rows_tl.append((f"{end_age}", "End of plan", f"~{compact_money_label(ending)} projected to remain"))
+
+        tl_html = """<div style="background:#fff;border:1px solid #e4e9f0;border-radius:20px;padding:22px 24px;box-shadow:0 6px 20px rgba(11,31,58,.05);">
+          <div style="font-family:'Lora',serif;font-size:1.2rem;color:#0b1f3a;margin-bottom:2px;">Your Money Timeline</div>
+          <div style="color:#6b7f96;font-size:.88rem;margin-bottom:14px;">The key moments ahead in your plan.</div>"""
+        for age_lbl, title, desc in rows_tl:
+            tl_html += f"""<div style="display:flex;gap:14px;padding:11px 0;">
+              <div style="font-family:'Lora',serif;font-weight:700;color:#1a6ef5;font-size:1.05rem;width:54px;flex-shrink:0;">{age_lbl}</div>
+              <div><div style="font-size:.9rem;font-weight:700;color:#0d1b2e;">{title}</div>
+              <div style="font-size:.8rem;color:#6b7f96;">{desc}</div></div></div>"""
+        tl_html += "</div>"
+        st.markdown(tl_html, unsafe_allow_html=True)
+
+    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+
+
 if active_page == PAGE_NAMES[6]:
     render_page_shell("Blueprint Dashboard", "Review your blueprint outcome, year-by-year trends, and the key retirement metrics that show whether your plan is on track.", "📊")
     page_help(
@@ -6114,6 +6322,8 @@ if active_page == PAGE_NAMES[6]:
         }
 
         risk_scores = calculate_risk_scores(summary_dashboard)
+
+        render_dashboard_summary(df, rtv_score, rtv_label, ending, depleted, risk_scores, summary_dashboard)
 
         st.markdown("## Blueprint Dashboard")
 
